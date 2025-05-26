@@ -7,4 +7,6 @@ public interface Platform {
     void sendDialog(UUID player, JsonElement jsonForm);
 
     void registerClickActionHandler(ClickActionHandler handler);
+
+    boolean isServerThread();
 }

@@ -63,8 +63,8 @@ public class DialogManagerImpl implements DialogManager {
             }
 
             formHandler.handleSubmit(uuid, interpretedPayload, hiddenState);
-            // TODO: why is this causing spooky effects? it happens with a HashMap too!
-            //   hiddenStateStore.invalidate(stateId);
+
+            hiddenStateStore.invalidate(stateId);
         });
     }
 

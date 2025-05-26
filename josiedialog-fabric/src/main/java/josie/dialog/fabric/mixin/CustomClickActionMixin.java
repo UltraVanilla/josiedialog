@@ -1,5 +1,6 @@
 package josie.dialog.fabric.mixin;
 
+import josie.dialog.api.PlatformHolder;
 import josie.dialog.fabric.PlatformFabric;
 import net.minecraft.network.protocol.common.ServerboundCustomClickActionPacket;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
@@ -12,9 +13,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CustomClickActionMixin {
     @Inject(method = "handleCustomClickAction", at = @At("HEAD"))
     private void handleCustomClickAction(final ServerboundCustomClickActionPacket packet, final CallbackInfo ci) {
-        final var profile = ((ServerCommonPacketListenerImpl) (Object) this).getOwner();
-
-        PlatformFabric.receiveClickAction(
-                profile.getId(), packet.id().toString(), packet.payload().get());
+        if (PlatformHolder.platform().isServerThread()) {
+            final var profile = ((ServerCommonPacketListenerImpl) (Object) this).getOwner();
+            PlatformFabric.receiveClickAction(
+                    profile.getId(), packet.id().toString(), packet.payload().get());
+        }
     }
 }

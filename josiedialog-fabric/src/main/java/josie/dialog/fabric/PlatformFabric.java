@@ -13,12 +13,11 @@ import net.minecraft.server.dialog.Dialog;
 
 public class PlatformFabric implements Platform {
     private static final List<PlatformFabric> instances = new ArrayList<>();
-    private final MinecraftServer server;
-    private final List<ClickActionHandler> clickActionHandlers;
+    private MinecraftServer server;
+    private final List<ClickActionHandler> clickActionHandlers = new ArrayList<>();
 
     public PlatformFabric(final MinecraftServer server) {
         this.server = server;
-        clickActionHandlers = new ArrayList<>();
         instances.add(this);
     }
 
@@ -45,5 +44,9 @@ public class PlatformFabric implements Platform {
                 handler.apply(uuid, id, rawForm);
             }
         }
+    }
+
+    public boolean isServerThread() {
+        return server.isSameThread();
     }
 }
