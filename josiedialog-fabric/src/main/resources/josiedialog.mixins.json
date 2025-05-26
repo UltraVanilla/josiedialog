@@ -1,0 +1,11 @@
+{
+    "required": true,
+    "package": "josie.dialog.fabric.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "CustomClickActionMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
