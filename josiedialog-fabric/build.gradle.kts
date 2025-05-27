@@ -9,7 +9,7 @@ group = "josie.dialog.fabric"
 repositories {
   mavenCentral()
 
-  maven { url = uri("https://jitpack.io") }
+  maven("https://ultravanilla.github.io/maven/release")
 }
 
 dependencies {
@@ -26,10 +26,9 @@ dependencies {
   implementation(project(":josiedialog"))
   include(project(":josiedialog"))
 
-  // TODO: make a maven repository
   // TODO: why do we have to re-specify transitive dependencies anyways?
-  include(
-    "com.github.UltraVanilla:blockgamekeyvalue:v${project.property("blockgamekeyvalue_version")}"
+  implementation(
+    "josie.blockgamekeyvalue:blockgamekeyvalue:${project.property("blockgamekeyvalue_version")}"
   )
   include("com.caoccao.javet:javet:${project.property("javet_version")}")
   include("com.caoccao.javet:javet-v8-linux-arm64:${project.property("javet_version")}")

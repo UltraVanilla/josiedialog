@@ -7,7 +7,7 @@ group = "josie.dialog"
 
 repositories {
   mavenCentral()
-  maven("https://jitpack.io")
+  maven("https://ultravanilla.github.io/maven/release")
 }
 
 dependencies {
@@ -17,7 +17,7 @@ dependencies {
 
   // TODO: make a maven repository
   implementation(
-    "com.github.UltraVanilla:blockgamekeyvalue:v${project.property("blockgamekeyvalue_version")}"
+    "josie.blockgamekeyvalue:blockgamekeyvalue:${project.property("blockgamekeyvalue_version")}"
   )
   implementation("com.google.code.gson:gson:${project.property("gson_version")}")
   implementation("com.caoccao.javet:javet:${project.property("javet_version")}")
