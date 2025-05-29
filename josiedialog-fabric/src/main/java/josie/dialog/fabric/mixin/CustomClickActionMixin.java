@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class CustomClickActionMixin {
     @Inject(method = "handleCustomClickAction", at = @At("HEAD"))
     private void handleCustomClickAction(final ServerboundCustomClickActionPacket packet, final CallbackInfo ci) {
-        if (PlatformHolder.platform().isServerThread()) {
+        if (!PlatformHolder.platform().isServerThread()) {
             final var profile = ((ServerCommonPacketListenerImpl) (Object) this).getOwner();
             PlatformFabric.receiveClickAction(
                     profile.getId(), packet.id().toString(), packet.payload().get());

@@ -3,10 +3,10 @@ package josie.dialog.fabric.example;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import josie.dialog.api.FormHandler;
+import josie.dialog.api.FormLifecycleHandler;
 import org.jspecify.annotations.Nullable;
 
-public class ReportForm implements FormHandler {
+public class ReportForm implements FormLifecycleHandler {
     public record Parameters(Map<UUID, String> recentPlayers, int x, int z) {}
 
     public record HiddenState(net.minecraft.world.phys.Vec3 position, net.minecraft.world.phys.Vec2 rotation) {}

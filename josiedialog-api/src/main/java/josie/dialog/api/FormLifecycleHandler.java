@@ -3,7 +3,7 @@ package josie.dialog.api;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 
-public interface FormHandler {
+public interface FormLifecycleHandler {
     @Nullable
     Class<?> parametersType();
 

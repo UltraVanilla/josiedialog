@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import josie.blockgamekeyvalue.BlockGameKeyValue;
 import josie.blockgamekeyvalue.exceptions.ParseException;
 import josie.dialog.api.DialogManager;
-import josie.dialog.api.FormHandler;
+import josie.dialog.api.FormLifecycleHandler;
 import josie.dialog.api.PlatformHolder;
 import org.jspecify.annotations.Nullable;
 
@@ -20,7 +20,7 @@ public class DialogManagerImpl implements DialogManager {
 
     private final DialogTemplateManager dialogTemplateManager;
 
-    private final Map<String, FormHandler> formHandlers = new HashMap<>();
+    private final Map<String, FormLifecycleHandler> formHandlers = new HashMap<>();
 
     private final Cache<UUID, Object> hiddenStateStore =
             CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.HOURS).build();
@@ -28,6 +28,10 @@ public class DialogManagerImpl implements DialogManager {
     public DialogManagerImpl(final Path path) {
         dialogTemplateManager = new DialogTemplateManager(path);
 
+        registerHandlerForPlatform();
+    }
+
+    private void registerHandlerForPlatform() {
         final var platform = PlatformHolder.platform();
 
         platform.registerClickActionHandler((uuid, id, payload) -> {
@@ -69,14 +73,14 @@ public class DialogManagerImpl implements DialogManager {
     }
 
     @Override
-    public void registerForm(final FormHandler form) {
+    public void registerForm(final FormLifecycleHandler form) {
         formHandlers.put(form.formId(), form);
     }
 
     @Override
     public void sendForm(
             final UUID user, final String id, @Nullable final Object parameters, @Nullable final Object hiddenState) {
-        final FormHandler formHandler = formHandlers.get(id);
+        final FormLifecycleHandler formHandler = formHandlers.get(id);
 
         if (hiddenState != null && !formHandler.hiddenStateType().isInstance(hiddenState)) {
             throw new IllegalArgumentException("Hidden state type must match registered form specification");
