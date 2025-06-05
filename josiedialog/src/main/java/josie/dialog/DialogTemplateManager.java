@@ -43,9 +43,11 @@ public class DialogTemplateManager {
             templates.clear();
 
             // don't worry this is literally how Node.js used to do commonjs
-            // but there's maybe a better way to preserve line numbers?
-            final var js = v8Runtime.getExecutor(
-                    "(function() { const templates = {}; (function() { \n%s\n })(); return templates; })()"
+            // but there's maybe a better way to preserve line numbers? wait, is our js engine even giving line numbers?
+            final var js = v8Runtime.getExecutor("(function() {\n"
+                    + "function josieMinimessage(text) { return { type: 'josiedialog_minimessage', text }; }\n"
+                    + "function josieForm(additions) { return { type: 'josiedialog_form', additions }; }\n"
+                    + "const templates = {}; (function() { \n%s\n })(); return templates; })()"
                             .formatted(Files.readString(configPath)));
 
             try (final V8ValueObject jsTemplates = js.execute()) {

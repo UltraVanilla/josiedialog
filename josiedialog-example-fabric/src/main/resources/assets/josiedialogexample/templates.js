@@ -16,9 +16,7 @@ templates.report = {
     render(params) {
         return {
             type: "minecraft:confirmation",
-            title: {
-                josiedialog_minimessage: "Report rule-breaking behavior to <#f5c144><bold>Staging</bold><#f4e8d1>Serv"
-            },
+            title: josieMinimessage("Report rule-breaking behavior to <#f5c144><bold>Staging</bold><#f4e8d1>Serv"),
             body: [
                 {
                     type: "minecraft:item",
@@ -27,9 +25,7 @@ templates.report = {
                         count: 1
                     },
                     description: {
-                        contents: {
-                            text: "Use this form to report players who are violating server rules."
-                        },
+                        contents: "Use this form to report players who are violating server rules.",
                         width: 275
                     },
                     show_decorations: false,
@@ -39,9 +35,7 @@ templates.report = {
                 },
                 {
                     type: "minecraft:plain_message",
-                    contents: {
-                        josiedialog_minimessage: "This report does not go to Mojang, but to the moderators of <#f5c144><bold>Staging</bold></#f5c144><#f4e8d1>Serv</#f4e8d1>. If you wish to report a skin or username to Mojang too, use the player reporting menu after reporting to us first.",
-                    },
+                    contents: josieMinimessage("This report does not go to Mojang, but to the moderators of <#f5c144><bold>Staging</bold></#f5c144><#f4e8d1>Serv</#f4e8d1>. If you wish to report a skin or username to Mojang too, use the player reporting menu after reporting to us first."),
                     width: 275
                 }
             ],
@@ -82,17 +76,13 @@ templates.report = {
                     type: "minecraft:text",
                     key: "otherAccounts",
                     width: 275,
-                    label: {
-                        josiedialog_minimessage: "Other account names and Discord IDs <gray><italic>(optional)"
-                    },
+                    label: josieMinimessage("Other account names and Discord IDs <gray><italic>(optional)"),
                 },
                 {
                     type: "minecraft:text",
                     key: "details",
                     width: 275,
-                    label: {
-                        josiedialog_minimessage: "Details <gray><italic>(markdown) (optional)"
-                    },
+                    label: josieMinimessage("Details <gray><italic>(markdown) (optional)"),
                     max_length: 8192,
                     multiline: {
                         height: 80,
@@ -111,9 +101,7 @@ templates.report = {
                 tooltip: {
                     text: "Send report to server admins"
                 },
-                action: {
-                    type: "josiedialog_form",
-                },
+                action: josieForm({}),
             },
             no: {
                 label: "Cancel",

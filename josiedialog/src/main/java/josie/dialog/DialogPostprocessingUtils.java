@@ -13,11 +13,10 @@ class DialogPostprocessingUtils {
     protected static JsonElement postProcess(
             final JsonElement input, final String submitId, @Nullable final UUID stateId) {
         if (input instanceof final JsonObject obj) {
-            if (obj.get("josiedialog_minimessage") instanceof final JsonPrimitive val
-                    && val.getAsString() instanceof final String mmString) {
-                return PlatformHolder.platform().minimessage(mmString);
-            } else if (obj.get("type") instanceof final JsonPrimitive type) {
-                if (Objects.equals(type.getAsString(), "josiedialog_form")) {
+            if (obj.get("type") instanceof final JsonPrimitive type) {
+                final var typeString = type.getAsString();
+
+                if (Objects.equals(typeString, "josiedialog_form")) {
                     obj.addProperty("type", "dynamic/custom");
                     obj.addProperty("id", submitId);
                     if (stateId != null) {
@@ -28,6 +27,10 @@ class DialogPostprocessingUtils {
                         additions.addProperty("stateId", stateId.toString());
                         obj.add("additions", additions);
                     }
+                } else if (Objects.equals(typeString, "josiedialog_minimessage")
+                        && obj.get("text") instanceof final JsonPrimitive textPrim
+                        && textPrim.getAsString() instanceof final String mmString) {
+                    return PlatformHolder.platform().minimessage(mmString);
                 }
             }
 
