@@ -39,27 +39,9 @@ templates.report = {
                 },
                 {
                     type: "minecraft:plain_message",
-                    contents: [
-                        {
-                            text: "This report does not go to Mojang, but to the moderators of ",
-                            italic: true
-                        },
-                        {
-                            text: "Staging",
-                            color: "#f5c144",
-                            italic: true,
-                            bold: true
-                        },
-                        {
-                            text: "Serv",
-                            color: "#f4e8d1",
-                            italic: true
-                        },
-                        {
-                            text: ". If you wish to report a skin or username to Mojang too, use the player reporting menu after reporting to us first.",
-                            italic: true
-                        }
-                    ],
+                    contents: {
+                        josiedialog_minimessage: "This report does not go to Mojang, but to the moderators of <#f5c144><bold>Staging</bold></#f5c144><#f4e8d1>Serv</#f4e8d1>. If you wish to report a skin or username to Mojang too, use the player reporting menu after reporting to us first.",
+                    },
                     width: 275
                 }
             ],
