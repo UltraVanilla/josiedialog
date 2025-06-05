@@ -15,8 +15,9 @@ public class CustomClickActionMixin {
     private void handleCustomClickAction(final ServerboundCustomClickActionPacket packet, final CallbackInfo ci) {
         if (!PlatformHolder.platform().isServerThread()) {
             final var profile = ((ServerCommonPacketListenerImpl) (Object) this).getOwner();
+
             PlatformFabric.receiveClickAction(
-                    profile.getId(), packet.id().toString(), packet.payload().get());
+                    profile.getId(), packet.id().toString(), packet.payload().orElse(null));
         }
     }
 }

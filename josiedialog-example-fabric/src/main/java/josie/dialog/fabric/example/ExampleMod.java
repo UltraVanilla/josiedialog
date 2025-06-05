@@ -35,27 +35,42 @@ public class ExampleMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register((final MinecraftServer server) -> {
             final var api = JosieDialogHolder.instance();
 
-            dialogManager = api.createDialogManager(configDir.resolve("templates.js"));
+            dialogManager = api.createDialogManager("josiedialogexample", configDir.resolve("templates.js"));
 
-            dialogManager.registerForm(new ReportForm());
+            dialogManager.registerDialog(new ReportForm()).registerDialog(new RulesDialog());
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(Commands.literal("rules").executes(context -> {
+                final var player = context.getSource().getPlayer();
+                try {
+                    dialogManager.sendDialog(player.getUUID(), "rules");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+                return 1;
+            }));
             dispatcher.register(Commands.literal("report").executes(context -> {
                 final var player = context.getSource().getPlayer();
                 if (player == null) return 0;
 
                 final var rotationVector = player.getRotationVector();
                 final var position = player.getEyePosition();
+                try {
+                    dialogManager.sendLifecycledForm(
+                            player.getUUID(),
+                            "report",
+                            new ReportForm.Parameters(
+                                    Map.of(UUID.fromString("61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"), "Dinnerbone"),
+                                    player.getBlockX(),
+                                    player.getBlockZ()),
+                            new ReportForm.HiddenState(position, rotationVector));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
 
-                dialogManager.sendForm(
-                        player.getUUID(),
-                        "report",
-                        new ReportForm.Parameters(
-                                Map.of(UUID.fromString("61699b2e-d327-4a01-9f1e-0ea8c3f06bc6"), "Dinnerbone"),
-                                player.getBlockX(),
-                                player.getBlockZ()),
-                        new ReportForm.HiddenState(position, rotationVector));
                 return 1;
             }));
         });

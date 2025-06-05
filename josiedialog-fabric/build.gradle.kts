@@ -8,8 +8,11 @@ group = "josie.dialog.fabric"
 
 repositories {
   mavenCentral()
-
-  maven("https://ultravanilla.github.io/maven/release")
+  //  maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+  //    name = "sonatype-oss-snapshots1"
+  //    mavenContent { snapshotsOnly() }
+  //  }
+  mavenLocal()
 }
 
 dependencies {
@@ -17,19 +20,21 @@ dependencies {
   mappings(loom.officialMojangMappings())
   modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
 
-  setOf("fabric-lifecycle-events-v1", "fabric-command-api-v1").forEach {
+  setOf("fabric-lifecycle-events-v1", "fabric-command-api-v2").forEach {
     modImplementation(fabricApi.module(it, project.property("fabric_version").toString()))
   }
 
-  api(project(":josiedialog-api"))
-  include(project(":josiedialog-api"))
-  implementation(project(":josiedialog"))
-  include(project(":josiedialog"))
+  implementation("net.kyori:adventure-api:${project.property("adventure_api_version")}")
+  modImplementation(
+    include(
+      "net.kyori:adventure-platform-fabric:${project.property("adventure_platform_fabric_version")}"
+    )!!
+  )
+
+  api(include(project(":josiedialog-api"))!!)
+  implementation(include(project(":josiedialog"))!!)
 
   // TODO: why do we have to re-specify transitive dependencies anyways?
-  implementation(
-    "josie.blockgamekeyvalue:blockgamekeyvalue:${project.property("blockgamekeyvalue_version")}"
-  )
   include("com.caoccao.javet:javet:${project.property("javet_version")}")
   include("com.caoccao.javet:javet-v8-linux-arm64:${project.property("javet_version")}")
   include("com.caoccao.javet:javet-v8-linux-x86_64:${project.property("javet_version")}")
@@ -37,7 +42,11 @@ dependencies {
   include("com.caoccao.javet:javet-v8-macos-x86_64:${project.property("javet_version")}")
   include("com.caoccao.javet:javet-v8-windows-x86_64:${project.property("javet_version")}")
 
-  api("org.jspecify:jspecify:1.0.0")
+  include("io.jsonwebtoken:jjwt-api:${project.property("jjwt_version")}")
+  include("io.jsonwebtoken:jjwt-impl:${project.property("jjwt_version")}")
+  include("io.jsonwebtoken:jjwt-gson:${project.property("jjwt_version")}")
+
+  api("org.jspecify:jspecify:${project.property("jspecify_version")}")
 }
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(21) }

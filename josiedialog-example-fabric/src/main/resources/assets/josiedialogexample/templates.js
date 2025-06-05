@@ -3,24 +3,22 @@
 // /// <reference lib="es2022" />
 // /// <reference types="./definitions.d.ts" />
 
-templates.report = {
-    render(id, params) {
+templates.rules = {
+    render() {
         return {
-            type: "minecraft:simple_input_form",
-            title: [
-                {
-                    text: "Report rule-breaking behavior to "
-                },
-                {
-                    text: "Staging",
-                    color: "#f5c144",
-                    bold: true
-                },
-                {
-                    text: "Serv",
-                    color: "#f4e8d1"
-                }
-            ],
+            type: "minecraft:notice",
+            title: "Rules",
+        };
+    }
+}
+
+templates.report = {
+    render(params) {
+        return {
+            type: "minecraft:confirmation",
+            title: {
+                josiedialog_minimessage: "Report rule-breaking behavior to <#f5c144><bold>Staging</bold><#f4e8d1>Serv"
+            },
             body: [
                 {
                     type: "minecraft:item",
@@ -100,24 +98,19 @@ templates.report = {
                 })),
                 {
                     type: "minecraft:text",
-                    key: "other_accounts",
+                    key: "otherAccounts",
                     width: 275,
-                    label: [
-                        { text: "Other account names and Discord IDs " },
-                        { text: "(optional)", color: "gray", italic: true }
-                    ],
-                    initial: ""
+                    label: {
+                        josiedialog_minimessage: "Other account names and Discord IDs <gray><italic>(optional)"
+                    },
                 },
                 {
                     type: "minecraft:text",
                     key: "details",
                     width: 275,
-                    label: [
-                        { text: "Details " },
-                        { text: "(markdown) (optional)", color: "gray", italic: true }
-                    ],
-                    initial: "",
-
+                    label: {
+                        josiedialog_minimessage: "Details <gray><italic>(markdown) (optional)"
+                    },
                     max_length: 8192,
                     multiline: {
                         height: 80,
@@ -126,22 +119,23 @@ templates.report = {
                 },
                 {
                     type: "minecraft:boolean",
-                    key: "report_my_location",
+                    key: "reportMyLocation",
                     label: `Report my current location (${params.x}, ${params.z}) as a location of interest`,
                     width: 275
                 }
             ],
-            action: {
+            yes: {
                 label: "Submit Report",
                 tooltip: {
                     text: "Send report to server admins"
                 },
-                id: "submit_report",
-                on_submit: {
-                    id: id,
-                    type: "custom_form"
-                }
-            }
+                action: {
+                    type: "josiedialog_form",
+                },
+            },
+            no: {
+                label: "Cancel",
+            },
         };
     },
     interpret(formSubmission) {
@@ -152,9 +146,10 @@ templates.report = {
         return {
             reason: formSubmission.reason,
             perpetrators,
-            otherAccounts: formSubmission.other_accounts,
+            otherAccounts: formSubmission.otherAccounts,
             details: formSubmission.details,
-            reportMyLocation: formSubmission.report_my_location === "true",
+            reportMyLocation: formSubmission.reportMyLocation,
+            action: formSubmission.action
         };
     },
 };

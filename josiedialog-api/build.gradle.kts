@@ -8,8 +8,8 @@ group = "josie.dialog.api"
 repositories { mavenCentral() }
 
 dependencies {
-  api("com.google.code.gson:gson:${project.property("gson_version")}")
-  api("org.jspecify:jspecify:1.0.0")
+  compileOnlyApi("com.google.code.gson:gson:${project.property("gson_version")}")
+  compileOnlyApi("org.jspecify:jspecify:${project.property("jspecify_version")}")
 }
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(21) }

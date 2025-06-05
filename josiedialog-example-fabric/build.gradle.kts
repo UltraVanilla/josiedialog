@@ -13,13 +13,13 @@ dependencies {
   mappings(loom.officialMojangMappings())
   modImplementation("net.fabricmc:fabric-loader:${project.property("loader_version")}")
 
-  setOf("fabric-lifecycle-events-v1", "fabric-command-api-v1").forEach {
+  setOf("fabric-lifecycle-events-v1", "fabric-command-api-v2").forEach {
     modImplementation(fabricApi.module(it, project.property("fabric_version").toString()))
   }
 
   implementation(project(":josiedialog-api"))
 
-  api("org.jspecify:jspecify:1.0.0")
+  api("org.jspecify:jspecify:${project.property("jspecify_version")}")
 }
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(21) }

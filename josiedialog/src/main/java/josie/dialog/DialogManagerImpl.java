@@ -2,17 +2,14 @@ package josie.dialog;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.gson.JsonElement;
 import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import josie.blockgamekeyvalue.BlockGameKeyValue;
-import josie.blockgamekeyvalue.exceptions.ParseException;
-import josie.dialog.api.DialogManager;
-import josie.dialog.api.FormLifecycleHandler;
-import josie.dialog.api.PlatformHolder;
+import josie.dialog.api.*;
 import org.jspecify.annotations.Nullable;
 
 public class DialogManagerImpl implements DialogManager {
@@ -20,50 +17,54 @@ public class DialogManagerImpl implements DialogManager {
 
     private final DialogTemplateManager dialogTemplateManager;
 
-    private final Map<String, FormLifecycleHandler> formHandlers = new HashMap<>();
+    private final String namespace;
+
+    private final Map<String, ParametizableFormLifecycleHandler> lifecycledFormHandlers = new HashMap<>();
+
+    private final Map<String, ParametizableDialog> dialogs = new HashMap<>();
 
     private final Cache<UUID, Object> hiddenStateStore =
             CacheBuilder.newBuilder().expireAfterWrite(3, TimeUnit.HOURS).build();
 
-    public DialogManagerImpl(final Path path) {
+    public DialogManagerImpl(final String namespace, final Path path) {
+        this.namespace = namespace;
         dialogTemplateManager = new DialogTemplateManager(path);
 
-        registerHandlerForPlatform();
+        registerHandler();
     }
 
-    private void registerHandlerForPlatform() {
+    private void registerHandler() {
         final var platform = PlatformHolder.platform();
 
         platform.registerClickActionHandler((uuid, id, payload) -> {
-            // TODO: maybe shunt this off to a worker thread?
             // TODO: rate limiting logic
-
-            if (!id.startsWith("josie:")) return;
-
-            final var split = id.split(":|___");
+            final var split = id.split(":");
+            if (!split[0].equals(namespace)) return;
 
             final var formId = split[1];
-            final var stateId = UUID.fromString(split[2]);
+            final var stateId = UUID.fromString(payload.get("stateId").getAsString());
 
-            final var formHandler = this.formHandlers.get(formId);
-
-            final Map<String, String> parsedPayload;
-            try {
-                parsedPayload = BlockGameKeyValue.parse(payload);
-            } catch (final ParseException err) {
-                return;
-            }
+            final var formHandler = this.lifecycledFormHandlers.get(formId);
 
             final var submissionDataType = formHandler.submissionDataType();
 
-            // TODO: handle errors
-            final var interpretedPayload =
-                    dialogTemplateManager.getTemplate(formId).interpret(parsedPayload, submissionDataType);
+            final Object interpretedPayload;
+            try {
+                interpretedPayload = dialogTemplateManager.getTemplate(formId).interpret(payload, submissionDataType);
+            } catch (final InterpretException e) {
+                e.printStackTrace();
+                return;
+            }
 
             final var hiddenState = hiddenStateStore.getIfPresent(stateId);
 
             if (hiddenState == null && formHandler.hiddenStateType() != null) {
-                platform.sendDialog(uuid, InternalDialogs.expired());
+                try {
+                    platform.sendDialog(uuid, InternalDialogs.expired());
+                } catch (final SendDialogException e) {
+                    e.printStackTrace();
+                }
+                return;
             }
 
             formHandler.handleSubmit(uuid, interpretedPayload, hiddenState);
@@ -73,33 +74,50 @@ public class DialogManagerImpl implements DialogManager {
     }
 
     @Override
-    public void registerForm(final FormLifecycleHandler form) {
-        formHandlers.put(form.formId(), form);
+    public DialogManager registerDialog(final ParametizableDialog dialog) {
+        dialogs.put(dialog.formId(), dialog);
+        if (dialog instanceof final ParametizableFormLifecycleHandler form) {
+            lifecycledFormHandlers.put(form.formId(), form);
+        }
+        return this;
     }
 
     @Override
-    public void sendForm(
-            final UUID user, final String id, @Nullable final Object parameters, @Nullable final Object hiddenState) {
-        final FormLifecycleHandler formHandler = formHandlers.get(id);
+    public void sendDialog(final UUID user, final String id, @Nullable final Object parameters)
+            throws SendDialogException, RenderException {
+        final var renderedDialog = renderDialog(id, parameters, null);
+
+        PlatformHolder.platform().sendDialog(user, renderedDialog);
+    }
+
+    @Override
+    public JsonElement renderDialog(final String id, @Nullable final Object parameters, @Nullable final UUID stateId)
+            throws RenderException {
+        final ParametizableDialog dialog = dialogs.get(id);
+
+        if (parameters != null && !dialog.parametersType().isInstance(parameters)) {
+            throw new IllegalArgumentException("Parameters type must match registered dialog specification");
+        }
+
+        final var dialogTemplate = dialogTemplateManager.getTemplate(id);
+
+        return DialogPostprocessingUtils.postProcess(dialogTemplate.render(parameters), namespace + ":" + id, stateId);
+    }
+
+    @Override
+    public void sendLifecycledForm(
+            final UUID user, final String id, @Nullable final Object parameters, @Nullable final Object hiddenState)
+            throws SendDialogException, RenderException {
+        final ParametizableFormLifecycleHandler formHandler = lifecycledFormHandlers.get(id);
 
         if (hiddenState != null && !formHandler.hiddenStateType().isInstance(hiddenState)) {
             throw new IllegalArgumentException("Hidden state type must match registered form specification");
         }
 
-        if (parameters != null && !formHandler.parametersType().isInstance(parameters)) {
-            throw new IllegalArgumentException("Parameters type must match registered form specification");
-        }
-
-        final var dialogTemplate = dialogTemplateManager.getTemplate(id);
-
         final var stateId = UUID.randomUUID();
-
         if (hiddenState != null) hiddenStateStore.put(stateId, hiddenState);
 
-        final var formId = "josie:" + id + "___" + stateId;
-
-        // TODO: handle errors
-        final var renderedDialog = dialogTemplate.render(formId, parameters);
+        final var renderedDialog = renderDialog(id, parameters, stateId);
 
         PlatformHolder.platform().sendDialog(user, renderedDialog);
     }

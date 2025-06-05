@@ -18,6 +18,8 @@ dependencies {
   paperweight.paperDevBundle("1.21.5-R0.1-SNAPSHOT")
   implementation(project(":josiedialog-api"))
   implementation(project(":josiedialog"))
+
+  api("org.jspecify:jspecify:${project.property("jspecify_version")}")
 }
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(21) }
@@ -26,6 +28,7 @@ tasks.shadowJar {
   fun reloc(pkg: String) = relocate(pkg, "${project.group}.dependency.$pkg")
 
   reloc("com.caoccao.javet")
+  reloc("io.jsonwebtoken")
 }
 
 tasks.build { dependsOn(tasks.shadowJar) }

@@ -5,28 +5,27 @@ plugins {
 
 group = "josie.dialog"
 
-repositories {
-  mavenCentral()
-  maven("https://ultravanilla.github.io/maven/release")
-}
+repositories { mavenCentral() }
 
 dependencies {
   api(project(":josiedialog-api"))
 
-  api("org.jspecify:jspecify:1.0.0")
+  compileOnlyApi("org.jspecify:jspecify:${project.property("jspecify_version")}")
 
-  // TODO: make a maven repository
-  implementation(
-    "josie.blockgamekeyvalue:blockgamekeyvalue:${project.property("blockgamekeyvalue_version")}"
-  )
-  implementation("com.google.code.gson:gson:${project.property("gson_version")}")
+  compileOnly("com.google.code.gson:gson:${project.property("gson_version")}")
+  compileOnly("com.google.guava:guava:${project.property("guava_version")}")
   implementation("com.caoccao.javet:javet:${project.property("javet_version")}")
-  implementation("com.caoccao.javet:javet-v8-linux-arm64:${project.property("javet_version")}")
-  implementation("com.caoccao.javet:javet-v8-linux-x86_64:${project.property("javet_version")}")
-  implementation("com.caoccao.javet:javet-v8-macos-arm64:${project.property("javet_version")}")
-  implementation("com.caoccao.javet:javet-v8-macos-x86_64:${project.property("javet_version")}")
-  implementation("com.caoccao.javet:javet-v8-windows-x86_64:${project.property("javet_version")}")
-  implementation("com.google.guava:guava:${project.property("guava_version")}")
+  runtimeOnly("com.caoccao.javet:javet-v8-linux-arm64:${project.property("javet_version")}")
+  runtimeOnly("com.caoccao.javet:javet-v8-linux-x86_64:${project.property("javet_version")}")
+  runtimeOnly("com.caoccao.javet:javet-v8-macos-arm64:${project.property("javet_version")}")
+  runtimeOnly("com.caoccao.javet:javet-v8-macos-x86_64:${project.property("javet_version")}")
+  runtimeOnly("com.caoccao.javet:javet-v8-windows-x86_64:${project.property("javet_version")}")
+
+  implementation("io.jsonwebtoken:jjwt-api:${project.property("jjwt_version")}")
+  runtimeOnly("io.jsonwebtoken:jjwt-impl:${project.property("jjwt_version")}")
+  implementation("io.jsonwebtoken:jjwt-gson:${project.property("jjwt_version")}") {
+    exclude("com.google.code.gson")
+  }
 }
 
 tasks.withType<JavaCompile>().configureEach { options.release.set(21) }

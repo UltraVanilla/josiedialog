@@ -6,7 +6,7 @@ import josie.dialog.api.JosieDialog;
 
 public class JosieDialogImpl implements JosieDialog {
     @Override
-    public DialogManager createDialogManager(final Path path) {
-        return new DialogManagerImpl(path);
+    public DialogManager createDialogManager(final String namespace, final Path path) {
+        return new DialogManagerImpl(namespace, path);
     }
 }
